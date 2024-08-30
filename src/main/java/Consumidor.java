@@ -1,3 +1,5 @@
+import java.sql.Timestamp;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -14,9 +16,9 @@ public class Consumidor {
         Connection conexao = connectionFactory.newConnection();
         Channel canal = conexao.createChannel();
 
-        String NOME_FILA = "task_queue";
+        String NOME_FILA = "queue_total_time";
 
-        boolean duravel = true;
+        boolean duravel = false;
         int prefetchCount = 1;
         canal.basicQos(prefetchCount);
         canal.queueDeclare(NOME_FILA, duravel, false, false, null);
@@ -42,9 +44,14 @@ public class Consumidor {
     }
 
     private static void doWork(String task) throws InterruptedException {
-        for (char a : task.toCharArray()){
-            if (a == '.') Thread.sleep(1000);
-        }
+        // for (char a : task.toCharArray()){
+        //     if (a == '.') Thread.sleep(1000);
+        // }
+        Thread.sleep(1000);
+        Timestamp receivedTimestamp = Timestamp.valueOf(task);
+        Timestamp timeStampNow =  new Timestamp(System.currentTimeMillis());
+        Timestamp diffTimestamp = new Timestamp(timeStampNow.getTime() - receivedTimestamp.getTime());
+        System.out.println("Diferença: " + diffTimestamp.toInstant().toEpochMilli());
     }
 }
 

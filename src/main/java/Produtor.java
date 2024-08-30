@@ -1,9 +1,13 @@
 import java.util.Random;
+import java.time.Instant;
+import java.sql.Timestamp;
+
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.MessageProperties;
+import com.rabbitmq.client.AMQP.BasicProperties;
 
 public class Produtor {
 
@@ -19,25 +23,29 @@ public class Produtor {
         ) {
             // String mensagem = "Olá";
             // String mensagem = String.join("", args);
-            String NOME_FILA = "task_queue";
+            String NOME_FILA = "queue_total_time";
             
             //(queue, passive, durable, exclusive, autoDelete, arguments)
-            boolean duravel = true;
+            boolean duravel = false;
             int prefetchCount = 1;
             canal.basicQos(prefetchCount);
             canal.queueDeclare(NOME_FILA, duravel, false, false, null);
             
             
-            for(int i=0; i< 10; i++){
-                String mensagem = "Mensagem com meu nome: Jonas Ariel Passos de Medeiros - " + i + " - ";
-                Random random = new Random();
-                for (int j = 0; j< random.nextInt(4) + 1; j++){
-                    mensagem += ".";
-                }
-                // ​(exchange, routingKey, mandatory, immediate, props, byte[] body)
-                canal.basicPublish("", NOME_FILA, false, false, MessageProperties.PERSISTENT_TEXT_PLAIN, mensagem.getBytes());
-                System.out.println("Mensagem publicada: " + mensagem);
-            }
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+            String mensagem = timestamp.toString();
+
+            // ​(exchange, routingKey, mandatory, immediate, props, byte[] body)
+            BasicProperties messageProperty = null;
+            canal.basicPublish("", NOME_FILA, false, false, messageProperty , mensagem.getBytes());
+            System.out.println("Mensagem publicada: " + mensagem);
+            // for(int i=0; i< 10; i++){
+            //     Random random = new Random();
+            //     for (int j = 0; j< random.nextInt(4) + 1; j++){
+            //         mensagem += ".";
+            //     }
+            // }
 
         }
     }
