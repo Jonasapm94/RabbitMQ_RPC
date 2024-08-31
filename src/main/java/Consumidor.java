@@ -31,6 +31,7 @@ public class Consumidor {
                 doWork(mensagem);
             } catch (Exception e) {
                 // TODO: handle exception
+                System.out.println(e.getStackTrace());
             } finally {
                 System.out.println("Trabalho feito.");
                 canal.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
@@ -42,16 +43,25 @@ public class Consumidor {
             System.out.println("Cancelaram a fila: " + NOME_FILA);
         });
     }
+    static long firstTimestamp;
+    static long lastTimestamp;
 
     private static void doWork(String task) throws InterruptedException {
         // for (char a : task.toCharArray()){
         //     if (a == '.') Thread.sleep(1000);
         // }
-        Thread.sleep(1000);
-        Timestamp receivedTimestamp = Timestamp.valueOf(task);
-        Timestamp timeStampNow =  new Timestamp(System.currentTimeMillis());
-        Timestamp diffTimestamp = new Timestamp(timeStampNow.getTime() - receivedTimestamp.getTime());
-        System.out.println("Diferença: " + diffTimestamp.toInstant().toEpochMilli());
+        // Thread.sleep(1000);
+        String[] strings = task.split("-");
+        if (strings[0].equals("1")){
+            firstTimestamp = Long.parseLong(strings[1]);
+            System.out.println("chegou no 1");
+        }
+        if (strings[0].equals("1000")){
+            System.out.println("chegou no 1000");
+            lastTimestamp = Long.parseLong(strings[1]);
+            Long diffTimestamp = lastTimestamp - firstTimestamp;
+            System.out.println("Diferença: " + diffTimestamp + " milissegundos");
+        }
     }
 }
 

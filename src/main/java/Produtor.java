@@ -32,20 +32,20 @@ public class Produtor {
             canal.queueDeclare(NOME_FILA, duravel, false, false, null);
             
             
-            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
-            String mensagem = timestamp.toString();
-
+            
             // ​(exchange, routingKey, mandatory, immediate, props, byte[] body)
             BasicProperties messageProperty = null;
-            canal.basicPublish("", NOME_FILA, false, false, messageProperty , mensagem.getBytes());
-            System.out.println("Mensagem publicada: " + mensagem);
-            // for(int i=0; i< 10; i++){
-            //     Random random = new Random();
-            //     for (int j = 0; j< random.nextInt(4) + 1; j++){
-            //         mensagem += ".";
-            //     }
-            // }
+            for(int i=1; i <= 1000; i++){
+                Long timestamp = System.currentTimeMillis();
+    
+                String mensagem = i + "-" + timestamp.toString();
+                canal.basicPublish("", NOME_FILA, false, false, messageProperty , mensagem.getBytes());
+                System.out.println("Mensagem publicada: " + mensagem);
+                // Random random = new Random();
+                // for (int j = 0; j< random.nextInt(4) + 1; j++){
+                //     mensagem += ".";
+                // }
+            }
 
         }
     }
