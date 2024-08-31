@@ -1,7 +1,3 @@
-import java.util.Random;
-import java.time.Instant;
-import java.sql.Timestamp;
-
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -23,10 +19,10 @@ public class Produtor {
         ) {
             // String mensagem = "Olá";
             // String mensagem = String.join("", args);
-            String NOME_FILA = "queue_total_time";
+            String NOME_FILA = "queue_total_time_duravel_persistente";
             
             //(queue, passive, durable, exclusive, autoDelete, arguments)
-            boolean duravel = false;
+            boolean duravel = true;
             int prefetchCount = 1;
             canal.basicQos(prefetchCount);
             canal.queueDeclare(NOME_FILA, duravel, false, false, null);
@@ -34,8 +30,8 @@ public class Produtor {
             
             
             // ​(exchange, routingKey, mandatory, immediate, props, byte[] body)
-            BasicProperties messageProperty = null;
-            for(int i=1; i <= 1000; i++){
+            BasicProperties messageProperty = MessageProperties.PERSISTENT_TEXT_PLAIN;
+            for(int i=1; i <= 1000000; i++){
                 Long timestamp = System.currentTimeMillis();
     
                 String mensagem = i + "-" + timestamp.toString();

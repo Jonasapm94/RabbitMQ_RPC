@@ -1,16 +1,12 @@
-
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
-import com.rabbitmq.client.MessageProperties;
 
-import java.io.IOException;
+public class ConsumidorDiffTotalTime {
 
-import com.rabbitmq.client.AMQP.BasicProperties;
-
-
-public class Consumidor {
+    private static long firstTimestamp = 0;
+    private static long lastTimestamp = 0;
     public static void main(String[] args) throws Exception {
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost("localhost");
@@ -20,25 +16,24 @@ public class Consumidor {
         Connection conexao = connectionFactory.newConnection();
         Channel canal = conexao.createChannel();
 
-        String NOME_FILA = "queue_total_time_duravel_persistente";
+        String NOME_FILA = "diffTotalTime_2";
 
         boolean duravel = true;
         int prefetchCount = 1;
         canal.basicQos(prefetchCount);
         canal.queueDeclare(NOME_FILA, duravel, false, false, null);
 
-        
 
         DeliverCallback callback = (consumerTag, delivery) -> {
             String mensagem = new String(delivery.getBody());
             System.out.println("Eu " + consumerTag + " Recebi: " + mensagem);
             
             try {
-                doWork(mensagem, canal, duravel);
+                doWork(mensagem);
             } catch (Exception e) {
                 System.out.println(e.getStackTrace());
             } finally {
-                // System.out.println("Trabalho feito.");
+                System.out.println("Trabalho feito.");
                 canal.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             }
         };
@@ -49,31 +44,16 @@ public class Consumidor {
         });
     }
 
-    private static void enviaMensagemParaNovaFila(String mensagem, Channel canal, boolean isFilaDuravel ){
-        String NOME_FILA = "diffTotalTime_2";
-        BasicProperties messageProperty = MessageProperties.MINIMAL_PERSISTENT_BASIC;
-        try {
-            canal.queueDeclare(NOME_FILA, isFilaDuravel, false, false, null);
-            canal.basicPublish("", NOME_FILA, false, false, messageProperty , mensagem.getBytes());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    private static void doWork(String mensagem) {
+        if(firstTimestamp == 0){
+            firstTimestamp = Long.parseLong(mensagem);
+            System.out.println("Peguei o primeiro timestamp: " + firstTimestamp);
+        } else {
+            lastTimestamp = Long.parseLong(mensagem);
+            System.out.println("Peguei o último timestamp: " + lastTimestamp);
+            System.out.println("Tempo total: " + (lastTimestamp - firstTimestamp));
+            firstTimestamp = 0;
+            lastTimestamp = 0;
         }
-        System.out.println("Mensagem publicada: " + mensagem);
-    }
-
-    private static void doWork(String task, Channel canal, boolean isFilaDuravel) throws InterruptedException {
-        // for (char a : task.toCharArray()){
-        //     if (a == '.') Thread.sleep(1000);
-        // }
-        // Thread.sleep(1000);
-        String[] strings = task.split("-");
-        if (strings[0].equals("1") || strings[0].equals("1000000")){
-            System.out.println("chegou no 1 ou 1000");
-            enviaMensagemParaNovaFila(strings[1], canal, isFilaDuravel);
-        }
-        // System.out.println("Recebi mensagem: " + strings[0] + " - " + strings[1]);
     }
 }
-
-
