@@ -16,6 +16,7 @@ public class ConsumidorDiffTotalTime {
         Connection conexao = connectionFactory.newConnection();
         Channel canal = conexao.createChannel();
 
+
         String NOME_FILA = "diffTotalTime_2";
 
         boolean duravel = true;
