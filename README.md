@@ -1,4 +1,4 @@
-# Atividade RabbitMQ - Routing-key
+# Atividade RabbitMQ - RPC
 ## Instalação
 
  - executar o comando `mvn install`
@@ -7,5 +7,5 @@
 ## Rodar o programa
 
  - executar uma instância do rabbitmq: `docker compose up`
- - executar o programa produtor (quantas vezes achar necessário), configurando qual o nível de log que será usado (info, warning ou error);
- - executar o programa consumidor (quantas instâncias quiser) passando no array args quais níveis de log que seu consumidor deseja receber. Cada consumidor é um worker que pegará as mensagens da fila e executará um trabalho sobre elas; Até que a fila tenha terminado.
+ - executar o programa servidor (quantas vezes achar necessário - quanto mais workers, melhor será a distribuição da carga de tarefas).
+ - executar o programa cliente, que enviará um grupo de chamadas rpc e aguardará a resposta.
