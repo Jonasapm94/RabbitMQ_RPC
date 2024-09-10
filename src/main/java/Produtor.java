@@ -1,4 +1,5 @@
 
+import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -16,13 +17,23 @@ public class Produtor {
         messageProduced[1] = "Terceira Mensagem de teste: Jonas Ariel Passos de Medeiros";
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
-            channel.exchangeDeclare(EXCHANGE_NAME, "direct");
+            // channel.exchangeDeclare(EXCHANGE_NAME, "direct");
     
-            String severity = getSeverity(messageProduced);
-            String message = getMessage(messageProduced);
+            // String severity = getSeverity(messageProduced);
+            // String message = getMessage(messageProduced);
     
-            channel.basicPublish(EXCHANGE_NAME, severity, null, message.getBytes("UTF-8"));
-            System.out.println(" [x] Sent '" + severity + "':'" + message + "'");
+            // channel.basicPublish(EXCHANGE_NAME, severity, null, message.getBytes("UTF-8"));
+            // System.out.println(" [x] Sent '" + severity + "':'" + message + "'");
+            
+            String message = "Teste 1";
+            String callbackQueueName = channel.queueDeclare().getQueue();
+
+            BasicProperties props = new BasicProperties
+                                        .Builder()
+                                        .replyTo(callbackQueueName)
+                                        .build();
+
+            channel.basicPublish("", "rpc_queue", props, message.getBytes());
         }
     }
 
